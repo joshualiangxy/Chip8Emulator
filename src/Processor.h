@@ -38,6 +38,7 @@ class Processor {
 
   Instruction getInstruction();
 
+  // Regular instructions
   void initializeInstructionProcessors();
   void noop(const Instruction& instruction);
   void processInstruction0(const Instruction& instruction);
@@ -47,13 +48,20 @@ class Processor {
   void registerComparisonSkip(const Instruction& instruction);
   void setRegister(const Instruction& instruction);
   void addToRegister(const Instruction& instruction);
+  void processArithmeticInstruction(const Instruction& instruction);
   void setIndexRegister(const Instruction& instruction);
   void draw(const Instruction& instruction);
 
+  // Arithmetic instructions
+  void noopArithmetic(const uint16_t register_x, const uint16_t register_y);
+
   typedef void (Processor::*InstructionProcessor)(
       const Instruction& instruction);
+  typedef void (Processor::*ArithmeticInstructionProcessor)(
+      const uint16_t register_x, const uint16_t register_y);
 
   InstructionProcessor instruction_table[0x10];
+  ArithmeticInstructionProcessor arithmetic_instruction_table[0x10];
 };
 
 #endif

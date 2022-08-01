@@ -69,9 +69,13 @@ void Processor::initializeInstructionProcessors() {
   this->instruction_table[0x5] = &Processor::registerComparisonSkip;
   this->instruction_table[0x6] = &Processor::setRegister;
   this->instruction_table[0x7] = &Processor::addToRegister;
+  this->instruction_table[0x8] = &Processor::processArithmeticInstruction;
   this->instruction_table[0x9] = &Processor::registerComparisonSkip;
   this->instruction_table[0xA] = &Processor::setIndexRegister;
   this->instruction_table[0xD] = &Processor::draw;
+
+  std::fill_n(this->arithmetic_instruction_table, 0x10,
+              &Processor::noopArithmetic);
 }
 
 void Processor::process() {
@@ -198,6 +202,15 @@ void Processor::addToRegister(const Instruction& instruction) {
   this->registers[register_to_add] += value_to_add;
 }
 
+void Processor::processArithmeticInstruction(const Instruction& instruction) {
+  uint16_t register_x = (instruction & 0xF00) >> 8;
+  uint16_t register_y = (instruction & 0xF0) >> 4;
+  uint16_t instruction_type = instruction & 0xF;
+
+  (this->*arithmetic_instruction_table[instruction_type])(register_x,
+                                                          register_y);
+}
+
 void Processor::setIndexRegister(const Instruction& instruction) {
   uint16_t value_to_set = instruction & 0xFFF;
   this->index_register = value_to_set;
@@ -231,3 +244,6 @@ void Processor::draw(const Instruction& instruction) {
     }
   }
 }
+
+void Processor::noopArithmetic(const uint16_t register_x,
+                               const uint16_t register_y) {}
