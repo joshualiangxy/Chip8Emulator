@@ -76,6 +76,8 @@ void Processor::initializeInstructionProcessors() {
 
   std::fill_n(this->arithmetic_instruction_table, 0x10,
               &Processor::noopArithmetic);
+
+  this->arithmetic_instruction_table[0x0] = &Processor::set;
 }
 
 void Processor::process() {
@@ -247,3 +249,7 @@ void Processor::draw(const Instruction& instruction) {
 
 void Processor::noopArithmetic(const uint16_t register_x,
                                const uint16_t register_y) {}
+
+void Processor::set(const uint16_t register_x, const uint16_t register_y) {
+  this->registers[register_x] = this->registers[register_y];
+}
