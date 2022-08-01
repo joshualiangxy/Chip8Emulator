@@ -11,10 +11,9 @@ class Processor {
  public:
   typedef uint16_t Address;
   typedef uint8_t Font;
-  typedef uint16_t IndexRegister;
+  typedef uint16_t IndexRegisterValue;
   typedef uint16_t Instruction;
   typedef uint8_t MemoryValue;
-  typedef Address ProgramCounter;
   typedef uint8_t RegisterValue;
   typedef std::stack<Address> Stack;
   typedef uint8_t Timer;
@@ -29,10 +28,10 @@ class Processor {
   static const Address FONT_SET_START_ADDRESS;
 
   Stack stack;
-  ProgramCounter program_counter;
+  Address program_counter;
   MemoryValue memory[4096];
   RegisterValue registers[16];
-  IndexRegister index_register;
+  IndexRegisterValue index_register;
   Timer delay_timer;
   Timer sound_timer;
   Display& display;
@@ -43,6 +42,7 @@ class Processor {
   void noop(const Instruction& instruction);
   void processInstruction0(const Instruction& instruction);
   void jump(const Instruction& instruction);
+  void call(const Instruction& instruction);
   void setRegister(const Instruction& instruction);
   void addToRegister(const Instruction& instruction);
   void setIndexRegister(const Instruction& instruction);

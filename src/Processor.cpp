@@ -62,6 +62,7 @@ void Processor::initializeInstructionProcessors() {
 
   this->instruction_table[0x0] = &Processor::processInstruction0;
   this->instruction_table[0x1] = &Processor::jump;
+  this->instruction_table[0x2] = &Processor::call;
   this->instruction_table[0x6] = &Processor::setRegister;
   this->instruction_table[0x7] = &Processor::addToRegister;
   this->instruction_table[0xA] = &Processor::setIndexRegister;
@@ -116,6 +117,12 @@ void Processor::processInstruction0(const Instruction& instruction) {
 
 void Processor::jump(const Instruction& instruction) {
   Address new_address = (instruction & 0xFFF);
+  this->program_counter = new_address;
+}
+
+void Processor::call(const Instruction& instruction) {
+  Address new_address = (instruction & 0xFFF);
+  this->stack.push(this->program_counter);
   this->program_counter = new_address;
 }
 
