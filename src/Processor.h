@@ -42,11 +42,11 @@ class Processor {
   void initializeInstructionProcessors();
   void noop(const Instruction& instruction);
   void processInstruction0(const Instruction& instruction);
-  void processInstruction1(const Instruction& instruction);
-  void processInstruction6(const Instruction& instruction);
-  void processInstruction7(const Instruction& instruction);
-  void processInstructionA(const Instruction& instruction);
-  void processInstructionD(const Instruction& instruction);
+  void jump(const Instruction& instruction);
+  void setRegister(const Instruction& instruction);
+  void addToRegister(const Instruction& instruction);
+  void setIndexRegister(const Instruction& instruction);
+  void draw(const Instruction& instruction);
 
   typedef void (Processor::*InstructionProcessor)(
       const Instruction& instruction);

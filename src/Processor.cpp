@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <fstream>
-#include <memory>
 #include <string>
 
 #include "Display.h"
@@ -62,11 +61,11 @@ void Processor::initializeInstructionProcessors() {
   std::fill_n(this->instruction_table, 0x10, &Processor::noop);
 
   this->instruction_table[0x0] = &Processor::processInstruction0;
-  this->instruction_table[0x1] = &Processor::processInstruction1;
-  this->instruction_table[0x6] = &Processor::processInstruction6;
-  this->instruction_table[0x7] = &Processor::processInstruction7;
-  this->instruction_table[0xA] = &Processor::processInstructionA;
-  this->instruction_table[0xD] = &Processor::processInstructionD;
+  this->instruction_table[0x1] = &Processor::jump;
+  this->instruction_table[0x6] = &Processor::setRegister;
+  this->instruction_table[0x7] = &Processor::addToRegister;
+  this->instruction_table[0xA] = &Processor::setIndexRegister;
+  this->instruction_table[0xD] = &Processor::draw;
 }
 
 void Processor::process() {
@@ -115,29 +114,29 @@ void Processor::processInstruction0(const Instruction& instruction) {
   }
 }
 
-void Processor::processInstruction1(const Instruction& instruction) {
+void Processor::jump(const Instruction& instruction) {
   Address new_address = (instruction & 0xFFF);
   this->program_counter = new_address;
 }
 
-void Processor::processInstruction6(const Instruction& instruction) {
+void Processor::setRegister(const Instruction& instruction) {
   uint16_t register_to_set = (instruction & 0xF00) >> 8;
   RegisterValue value_to_set = instruction & 0xFF;
   this->registers[register_to_set] = value_to_set;
 }
 
-void Processor::processInstruction7(const Instruction& instruction) {
+void Processor::addToRegister(const Instruction& instruction) {
   uint16_t register_to_add = (instruction & 0xF00) >> 8;
   RegisterValue value_to_add = instruction & 0xFF;
   this->registers[register_to_add] += value_to_add;
 }
 
-void Processor::processInstructionA(const Instruction& instruction) {
+void Processor::setIndexRegister(const Instruction& instruction) {
   uint16_t value_to_set = instruction & 0xFFF;
   this->index_register = value_to_set;
 }
 
-void Processor::processInstructionD(const Instruction& instruction) {
+void Processor::draw(const Instruction& instruction) {
   uint16_t x_register = (instruction & 0xF00) >> 8;
   uint16_t y_register = (instruction & 0xF0) >> 4;
   uint16_t height = instruction & 0xF;
