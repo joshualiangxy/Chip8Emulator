@@ -151,7 +151,7 @@ void Processor::constantComparisonSkip(const Instruction& instruction) {
 
     default:
       throw std::logic_error(std::format(
-          "First nibble of constant check instruction should not be {}",
+          "First nibble of compare constant skip instruction should not be {}",
           instruction_type));
   }
 }
@@ -181,7 +181,7 @@ void Processor::registerComparisonSkip(const Instruction& instruction) {
 
     default:
       throw std::logic_error(std::format(
-          "First nibble of constant check instruction should not be {}",
+          "First nibble of compare register skip instruction should not be {}",
           instruction_type));
   }
 }
