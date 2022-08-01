@@ -46,3 +46,7 @@ bool Keypad::processEvents() {
 
   return false;
 }
+
+bool Keypad::isKeyPressed(const uint8_t key_to_be_checked) const {
+  return this->keypresses[key_to_be_checked];
+}

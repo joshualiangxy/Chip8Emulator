@@ -7,6 +7,7 @@
 #include <string>
 
 #include "Display.h"
+#include "Keypad.h"
 
 class Processor {
  public:
@@ -19,7 +20,8 @@ class Processor {
   typedef std::stack<Address> Stack;
   typedef uint8_t Timer;
 
-  Processor(const std::string& rom_path, Display& display);
+  Processor(const std::string& rom_path, Display& display,
+            const Keypad& keypad);
 
   void process();
 
@@ -37,6 +39,7 @@ class Processor {
   Timer delay_timer;
   Timer sound_timer;
   Display& display;
+  const Keypad& keypad;
   std::default_random_engine random_engine;
   std::uniform_int_distribution<short> uniform_int_distribution;
 
@@ -57,6 +60,7 @@ class Processor {
   void jumpWithOffset(const Instruction& instruction);
   void genRandomNumber(const Instruction& instruction);
   void draw(const Instruction& instruction);
+  void skipIfKey(const Instruction& instruction);
 
   // Arithmetic instructions
   void noopArithmetic(const uint16_t register_x, const uint16_t register_y);

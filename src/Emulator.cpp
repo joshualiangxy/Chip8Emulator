@@ -9,7 +9,7 @@ Emulator::Emulator(const std::string& rom_path)
     : frames_per_second{60},
       keypad{},
       display{10},
-      processor{rom_path, this->display} {}
+      processor{rom_path, this->display, this->keypad} {}
 
 void Emulator::start() {
   const uint32_t millisec_for_frame = MILLISEC_IN_SEC / this->frames_per_second;

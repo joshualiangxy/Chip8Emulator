@@ -8,6 +8,7 @@
 #include <string>
 
 #include "Display.h"
+#include "Keypad.h"
 
 const uint8_t VIDEO_WIDTH = 64;
 const uint8_t VIDEO_HEIGHT = 32;
@@ -34,13 +35,15 @@ const Processor::Font Processor::FONT_SET[Processor::FONT_SET_SIZE] = {
 };
 const Processor::Address Processor::FONT_SET_START_ADDRESS = 0x50;
 
-Processor::Processor(const std::string& rom_path, Display& display)
+Processor::Processor(const std::string& rom_path, Display& display,
+                     const Keypad& keypad)
     : program_counter{0x200},
       index_register{0x0},
       delay_timer{0x0},
       sound_timer{0x0},
       memory{},
       display{display},
+      keypad{keypad},
       random_engine{
           std::chrono::system_clock::now().time_since_epoch().count()} {
   this->initializeInstructionProcessors();
@@ -81,6 +84,7 @@ void Processor::initializeInstructionProcessors() {
   this->instruction_table[0xB] = &Processor::jumpWithOffset;
   this->instruction_table[0xC] = &Processor::genRandomNumber;
   this->instruction_table[0xD] = &Processor::draw;
+  this->instruction_table[0xE] = &Processor::skipIfKey;
 
   std::fill_n(this->arithmetic_instruction_table, 0x10,
               &Processor::noopArithmetic);
@@ -280,6 +284,40 @@ void Processor::draw(const Instruction& instruction) {
       if (this->display.flipPixel(screen_pixel_index))
         this->registers[Processor::FLAG_REGISTER] = 1;
     }
+  }
+}
+
+void Processor::skipIfKey(const Instruction& instruction) {
+  uint16_t register_to_be_checked = (instruction & 0xF00) >> 8;
+  RegisterValue key_to_be_checked = this->registers[register_to_be_checked];
+
+  bool is_valid_key = key_to_be_checked >= 0x0 && key_to_be_checked <= 0xF;
+  if (!is_valid_key) {
+    throw std::logic_error(
+        std::format("Skip if key instruction encountered invalid key: {}",
+                    key_to_be_checked));
+  }
+
+  bool is_key_pressed = this->keypad.isKeyPressed(key_to_be_checked);
+
+  uint16_t instruction_type = instruction & 0xFF;
+  switch (instruction_type) {
+    case 0x9E:
+      if (is_key_pressed) {
+        this->program_counter += 2;
+      }
+      break;
+
+    case 0xA1:
+      if (!is_key_pressed) {
+        this->program_counter += 2;
+      }
+      break;
+
+    default:
+      throw std::logic_error(
+          std::format("Skip if key instruction should not have last byte as {}",
+                      instruction_type));
   }
 }
 
