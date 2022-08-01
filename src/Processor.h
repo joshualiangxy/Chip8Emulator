@@ -2,6 +2,7 @@
 #define GUARD_PROCESSOR_H
 
 #include <cstdint>
+#include <random>
 #include <stack>
 #include <string>
 
@@ -36,6 +37,8 @@ class Processor {
   Timer delay_timer;
   Timer sound_timer;
   Display& display;
+  std::default_random_engine random_engine;
+  std::uniform_int_distribution<short> uniform_int_distribution;
 
   Instruction getInstruction();
 
@@ -52,6 +55,7 @@ class Processor {
   void processArithmeticInstruction(const Instruction& instruction);
   void setIndexRegister(const Instruction& instruction);
   void jumpWithOffset(const Instruction& instruction);
+  void genRandomNumber(const Instruction& instruction);
   void draw(const Instruction& instruction);
 
   // Arithmetic instructions

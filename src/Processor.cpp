@@ -1,8 +1,10 @@
 #include "Processor.h"
 
 #include <algorithm>
+#include <chrono>
 #include <format>
 #include <fstream>
+#include <random>
 #include <string>
 
 #include "Display.h"
@@ -38,8 +40,12 @@ Processor::Processor(const std::string& rom_path, Display& display)
       delay_timer{0x0},
       sound_timer{0x0},
       memory{},
-      display{display} {
+      display{display},
+      random_engine{
+          std::chrono::system_clock::now().time_since_epoch().count()} {
   this->initializeInstructionProcessors();
+  this->uniform_int_distribution =
+      std::uniform_int_distribution<short>{0, 255u};
   std::fill_n(this->registers, 16, 0x0);
   memcpy(memory + FONT_SET_START_ADDRESS, FONT_SET, FONT_SET_SIZE);
 
@@ -73,6 +79,7 @@ void Processor::initializeInstructionProcessors() {
   this->instruction_table[0x9] = &Processor::registerComparisonSkip;
   this->instruction_table[0xA] = &Processor::setIndexRegister;
   this->instruction_table[0xB] = &Processor::jumpWithOffset;
+  this->instruction_table[0xC] = &Processor::genRandomNumber;
   this->instruction_table[0xD] = &Processor::draw;
 
   std::fill_n(this->arithmetic_instruction_table, 0x10,
@@ -237,6 +244,13 @@ void Processor::jumpWithOffset(const Instruction& instruction) {
   uint16_t register_x = (instruction & 0xF00) >> 8;
   this->program_counter += this->registers[register_x];
 #endif
+}
+
+void Processor::genRandomNumber(const Instruction& instruction) {
+  uint16_t register_to_set = (instruction & 0xF00) >> 8;
+  uint16_t value = instruction & 0xFF;
+  this->registers[register_to_set] =
+      this->uniform_int_distribution(this->random_engine) & value;
 }
 
 void Processor::draw(const Instruction& instruction) {
