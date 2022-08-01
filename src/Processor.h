@@ -55,6 +55,7 @@ class Processor {
   // Arithmetic instructions
   void noopArithmetic(const uint16_t register_x, const uint16_t register_y);
   void set(const uint16_t register_x, const uint16_t register_y);
+  void logicalOr(const uint16_t register_x, const uint16_t register_y);
 
   typedef void (Processor::*InstructionProcessor)(
       const Instruction& instruction);

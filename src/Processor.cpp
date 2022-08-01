@@ -78,6 +78,7 @@ void Processor::initializeInstructionProcessors() {
               &Processor::noopArithmetic);
 
   this->arithmetic_instruction_table[0x0] = &Processor::set;
+  this->arithmetic_instruction_table[0x1] = &Processor::logicalOr;
 }
 
 void Processor::process() {
@@ -252,4 +253,10 @@ void Processor::noopArithmetic(const uint16_t register_x,
 
 void Processor::set(const uint16_t register_x, const uint16_t register_y) {
   this->registers[register_x] = this->registers[register_y];
+}
+
+void Processor::logicalOr(const uint16_t register_x,
+                           const uint16_t register_y) {
+  this->registers[register_x] =
+      this->registers[register_x] | this->registers[register_y];
 }
