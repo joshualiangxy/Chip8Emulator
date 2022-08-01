@@ -80,6 +80,7 @@ void Processor::initializeInstructionProcessors() {
   this->arithmetic_instruction_table[0x0] = &Processor::set;
   this->arithmetic_instruction_table[0x1] = &Processor::logicalOr;
   this->arithmetic_instruction_table[0x2] = &Processor::logicalAnd;
+  this->arithmetic_instruction_table[0x3] = &Processor::logicalXor;
 }
 
 void Processor::process() {
@@ -227,7 +228,7 @@ void Processor::draw(const Instruction& instruction) {
   RegisterValue x_pos = this->registers[x_register] % VIDEO_WIDTH;
   RegisterValue y_pos = this->registers[y_register] % VIDEO_HEIGHT;
 
-  this->registers[0xF] = 0;
+  this->registers[Processor::FLAG_REGISTER] = 0;
 
   for (uint8_t row = 0; row < height; row++) {
     MemoryValue sprite_byte = this->memory[this->index_register + row];
@@ -244,7 +245,8 @@ void Processor::draw(const Instruction& instruction) {
         continue;
       }
 
-      if (this->display.flipPixel(screen_pixel_index)) this->registers[0xF] = 1;
+      if (this->display.flipPixel(screen_pixel_index))
+        this->registers[Processor::FLAG_REGISTER] = 1;
     }
   }
 }
@@ -266,4 +268,10 @@ void Processor::logicalAnd(const uint16_t register_x,
                            const uint16_t register_y) {
   this->registers[register_x] =
       this->registers[register_x] & this->registers[register_y];
+}
+
+void Processor::logicalXor(const uint16_t register_x,
+                           const uint16_t register_y) {
+  this->registers[register_x] =
+      this->registers[register_x] ^ this->registers[register_y];
 }

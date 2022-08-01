@@ -26,6 +26,7 @@ class Processor {
   static const std::size_t FONT_SET_SIZE;
   static const Font FONT_SET[];
   static const Address FONT_SET_START_ADDRESS;
+  static const uint16_t FLAG_REGISTER = 0xF;
 
   Stack stack;
   Address program_counter;
@@ -57,6 +58,7 @@ class Processor {
   void set(const uint16_t register_x, const uint16_t register_y);
   void logicalOr(const uint16_t register_x, const uint16_t register_y);
   void logicalAnd(const uint16_t register_x, const uint16_t register_y);
+  void logicalXor(const uint16_t register_x, const uint16_t register_y);
 
   typedef void (Processor::*InstructionProcessor)(
       const Instruction& instruction);
