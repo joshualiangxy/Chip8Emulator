@@ -81,6 +81,7 @@ void Processor::initializeInstructionProcessors() {
   this->arithmetic_instruction_table[0x1] = &Processor::logicalOr;
   this->arithmetic_instruction_table[0x2] = &Processor::logicalAnd;
   this->arithmetic_instruction_table[0x3] = &Processor::logicalXor;
+  this->arithmetic_instruction_table[0x4] = &Processor::add;
 }
 
 void Processor::process() {
@@ -274,4 +275,11 @@ void Processor::logicalXor(const uint16_t register_x,
                            const uint16_t register_y) {
   this->registers[register_x] =
       this->registers[register_x] ^ this->registers[register_y];
+}
+
+void Processor::add(const uint16_t register_x, const uint16_t register_y) {
+  RegisterValue sum = this->registers[register_x] + this->registers[register_y];
+  this->registers[Processor::FLAG_REGISTER] =
+      sum < this->registers[register_x] || sum < this->registers[register_y];
+  this->registers[register_x] = sum;
 }
