@@ -72,6 +72,7 @@ void Processor::initializeInstructionProcessors() {
   this->instruction_table[0x8] = &Processor::processArithmeticInstruction;
   this->instruction_table[0x9] = &Processor::registerComparisonSkip;
   this->instruction_table[0xA] = &Processor::setIndexRegister;
+  this->instruction_table[0xB] = &Processor::jumpWithOffset;
   this->instruction_table[0xD] = &Processor::draw;
 
   std::fill_n(this->arithmetic_instruction_table, 0x10,
@@ -224,6 +225,18 @@ void Processor::processArithmeticInstruction(const Instruction& instruction) {
 void Processor::setIndexRegister(const Instruction& instruction) {
   uint16_t value_to_set = instruction & 0xFFF;
   this->index_register = value_to_set;
+}
+
+void Processor::jumpWithOffset(const Instruction& instruction) {
+  Address new_address = (instruction & 0xFFF);
+  this->program_counter = new_address;
+
+#ifdef ORIGINAL_CHIP8
+  this->program_counter += this->registers[0x0];
+#else
+  uint16_t register_x = (instruction & 0xF00) >> 8;
+  this->program_counter += this->registers[register_x];
+#endif
 }
 
 void Processor::draw(const Instruction& instruction) {

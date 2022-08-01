@@ -51,6 +51,7 @@ class Processor {
   void addToRegister(const Instruction& instruction);
   void processArithmeticInstruction(const Instruction& instruction);
   void setIndexRegister(const Instruction& instruction);
+  void jumpWithOffset(const Instruction& instruction);
   void draw(const Instruction& instruction);
 
   // Arithmetic instructions
