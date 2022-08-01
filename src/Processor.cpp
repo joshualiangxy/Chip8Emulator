@@ -82,6 +82,8 @@ void Processor::initializeInstructionProcessors() {
   this->arithmetic_instruction_table[0x2] = &Processor::logicalAnd;
   this->arithmetic_instruction_table[0x3] = &Processor::logicalXor;
   this->arithmetic_instruction_table[0x4] = &Processor::add;
+  this->arithmetic_instruction_table[0x5] = &Processor::subtractYFromX;
+  this->arithmetic_instruction_table[0x7] = &Processor::subtractXFromY;
 }
 
 void Processor::process() {
@@ -282,4 +284,22 @@ void Processor::add(const uint16_t register_x, const uint16_t register_y) {
   this->registers[Processor::FLAG_REGISTER] =
       sum < this->registers[register_x] || sum < this->registers[register_y];
   this->registers[register_x] = sum;
+}
+
+void Processor::subtractYFromX(const uint16_t register_x,
+                               const uint16_t register_y) {
+  RegisterValue result =
+      this->registers[register_x] - this->registers[register_y];
+  this->registers[Processor::FLAG_REGISTER] =
+      this->registers[register_x] > this->registers[register_y];
+  this->registers[register_x] = result;
+}
+
+void Processor::subtractXFromY(const uint16_t register_x,
+                               const uint16_t register_y) {
+  RegisterValue result =
+      this->registers[register_y] - this->registers[register_x];
+  this->registers[Processor::FLAG_REGISTER] =
+      this->registers[register_y] > this->registers[register_x];
+  this->registers[register_x] = result;
 }

@@ -60,6 +60,8 @@ class Processor {
   void logicalAnd(const uint16_t register_x, const uint16_t register_y);
   void logicalXor(const uint16_t register_x, const uint16_t register_y);
   void add(const uint16_t register_x, const uint16_t register_y);
+  void subtractYFromX(const uint16_t register_x, const uint16_t register_y);
+  void subtractXFromY(const uint16_t register_x, const uint16_t register_y);
 
   typedef void (Processor::*InstructionProcessor)(
       const Instruction& instruction);
