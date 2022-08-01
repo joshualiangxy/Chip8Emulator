@@ -43,6 +43,8 @@ class Processor {
   void processInstruction0(const Instruction& instruction);
   void jump(const Instruction& instruction);
   void call(const Instruction& instruction);
+  void constantComparisonSkip(const Instruction& instruction);
+  void registerComparisonSkip(const Instruction& instruction);
   void setRegister(const Instruction& instruction);
   void addToRegister(const Instruction& instruction);
   void setIndexRegister(const Instruction& instruction);

@@ -1,6 +1,7 @@
 #include "Processor.h"
 
 #include <algorithm>
+#include <format>
 #include <fstream>
 #include <string>
 
@@ -63,8 +64,12 @@ void Processor::initializeInstructionProcessors() {
   this->instruction_table[0x0] = &Processor::processInstruction0;
   this->instruction_table[0x1] = &Processor::jump;
   this->instruction_table[0x2] = &Processor::call;
+  this->instruction_table[0x3] = &Processor::constantComparisonSkip;
+  this->instruction_table[0x4] = &Processor::constantComparisonSkip;
+  this->instruction_table[0x5] = &Processor::registerComparisonSkip;
   this->instruction_table[0x6] = &Processor::setRegister;
   this->instruction_table[0x7] = &Processor::addToRegister;
+  this->instruction_table[0x9] = &Processor::registerComparisonSkip;
   this->instruction_table[0xA] = &Processor::setIndexRegister;
   this->instruction_table[0xD] = &Processor::draw;
 }
@@ -124,6 +129,61 @@ void Processor::call(const Instruction& instruction) {
   Address new_address = (instruction & 0xFFF);
   this->stack.push(this->program_counter);
   this->program_counter = new_address;
+}
+
+void Processor::constantComparisonSkip(const Instruction& instruction) {
+  uint16_t register_to_check = (instruction & 0xF00) >> 8;
+  RegisterValue value_to_check = instruction & 0xFF;
+
+  uint16_t instruction_type = instruction >> 12;
+  switch (instruction_type) {
+    case 0x3:
+      if (this->registers[register_to_check] == value_to_check) {
+        this->program_counter += 2;
+      }
+      break;
+
+    case 0x4:
+      if (this->registers[register_to_check] != value_to_check) {
+        this->program_counter += 2;
+      }
+      break;
+
+    default:
+      throw std::logic_error(std::format(
+          "First nibble of constant check instruction should not be {}",
+          instruction_type));
+  }
+}
+
+void Processor::registerComparisonSkip(const Instruction& instruction) {
+  if ((instruction & 0xF) != 0) {
+    throw std::logic_error(
+        "Compare register skip instruction should have last nibble as 0x0");
+  }
+
+  uint16_t register_x = (instruction & 0xF00) >> 8;
+  uint16_t register_y = (instruction & 0xF0) >> 4;
+
+  uint16_t instruction_type = instruction >> 12;
+  switch (instruction_type) {
+    case 0x5:
+      if (this->registers[register_x] == this->registers[register_y]) {
+        this->program_counter += 2;
+      }
+      break;
+
+    case 0x9:
+      if (this->registers[register_x] != this->registers[register_y]) {
+        this->program_counter += 2;
+      }
+      break;
+
+    default:
+      throw std::logic_error(std::format(
+          "First nibble of constant check instruction should not be {}",
+          instruction_type));
+  }
 }
 
 void Processor::setRegister(const Instruction& instruction) {
