@@ -79,6 +79,7 @@ void Processor::initializeInstructionProcessors() {
 
   this->arithmetic_instruction_table[0x0] = &Processor::set;
   this->arithmetic_instruction_table[0x1] = &Processor::logicalOr;
+  this->arithmetic_instruction_table[0x2] = &Processor::logicalAnd;
 }
 
 void Processor::process() {
@@ -256,7 +257,13 @@ void Processor::set(const uint16_t register_x, const uint16_t register_y) {
 }
 
 void Processor::logicalOr(const uint16_t register_x,
-                           const uint16_t register_y) {
+                          const uint16_t register_y) {
   this->registers[register_x] =
       this->registers[register_x] | this->registers[register_y];
+}
+
+void Processor::logicalAnd(const uint16_t register_x,
+                           const uint16_t register_y) {
+  this->registers[register_x] =
+      this->registers[register_x] & this->registers[register_y];
 }
