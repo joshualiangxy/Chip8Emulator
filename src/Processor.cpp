@@ -83,7 +83,9 @@ void Processor::initializeInstructionProcessors() {
   this->arithmetic_instruction_table[0x3] = &Processor::logicalXor;
   this->arithmetic_instruction_table[0x4] = &Processor::add;
   this->arithmetic_instruction_table[0x5] = &Processor::subtractYFromX;
+  this->arithmetic_instruction_table[0x6] = &Processor::shiftRight;
   this->arithmetic_instruction_table[0x7] = &Processor::subtractXFromY;
+  this->arithmetic_instruction_table[0xE] = &Processor::shiftLeft;
 }
 
 void Processor::process() {
@@ -302,4 +304,24 @@ void Processor::subtractXFromY(const uint16_t register_x,
   this->registers[Processor::FLAG_REGISTER] =
       this->registers[register_y] > this->registers[register_x];
   this->registers[register_x] = result;
+}
+
+void Processor::shiftRight(const uint16_t register_x,
+                           const uint16_t register_y) {
+#ifdef ORIGINAL_CHIP8
+  this->registers[register_x] = this->registers[register_y];
+#endif
+
+  this->registers[Processor::FLAG_REGISTER] = this->registers[register_x] & 0x1;
+  this->registers[register_x] = this->registers[register_x] >> 1;
+}
+
+void Processor::shiftLeft(const uint16_t register_x,
+                          const uint16_t register_y) {
+#ifdef ORIGINAL_CHIP8
+  this->registers[register_x] = this->registers[register_y];
+#endif
+
+  this->registers[Processor::FLAG_REGISTER] = this->registers[register_x] >> 7;
+  this->registers[register_x] = this->registers[register_x] << 1;
 }

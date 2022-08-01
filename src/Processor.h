@@ -62,6 +62,8 @@ class Processor {
   void add(const uint16_t register_x, const uint16_t register_y);
   void subtractYFromX(const uint16_t register_x, const uint16_t register_y);
   void subtractXFromY(const uint16_t register_x, const uint16_t register_y);
+  void shiftRight(const uint16_t register_x, const uint16_t register_y);
+  void shiftLeft(const uint16_t register_x, const uint16_t register_y);
 
   typedef void (Processor::*InstructionProcessor)(
       const Instruction& instruction);
