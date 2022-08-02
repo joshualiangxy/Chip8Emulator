@@ -45,8 +45,9 @@ class Processor {
 
   Instruction getInstruction();
 
-  // Regular instructions
   void initializeInstructionProcessors();
+
+  // Regular instructions
   void noop(const Instruction& instruction);
   void processInstruction0(const Instruction& instruction);
   void jump(const Instruction& instruction);
@@ -61,6 +62,7 @@ class Processor {
   void genRandomNumber(const Instruction& instruction);
   void draw(const Instruction& instruction);
   void skipIfKey(const Instruction& instruction);
+  void processInstructionF(const Instruction& instruction);
 
   // Arithmetic instructions
   void noopArithmetic(const uint16_t register_x, const uint16_t register_y);

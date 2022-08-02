@@ -5,6 +5,7 @@
 #include <format>
 #include <fstream>
 #include <random>
+#include <stdexcept>
 #include <string>
 
 #include "Display.h"
@@ -85,6 +86,7 @@ void Processor::initializeInstructionProcessors() {
   this->instruction_table[0xC] = &Processor::genRandomNumber;
   this->instruction_table[0xD] = &Processor::draw;
   this->instruction_table[0xE] = &Processor::skipIfKey;
+  this->instruction_table[0xF] = &Processor::processInstructionF;
 
   std::fill_n(this->arithmetic_instruction_table, 0x10,
               &Processor::noopArithmetic);
@@ -318,6 +320,80 @@ void Processor::skipIfKey(const Instruction& instruction) {
       throw std::logic_error(
           std::format("Skip if key instruction should not have last byte as {}",
                       instruction_type));
+  }
+}
+
+void Processor::processInstructionF(const Instruction& instruction) {
+  uint16_t sum;
+  int key;
+
+  uint16_t register_x = (instruction & 0xF00) >> 8;
+  RegisterValue value = this->registers[register_x];
+
+  uint16_t instruction_type = instruction & 0xFF;
+  switch (instruction_type) {
+    // Timer instructions
+    case 0x07:
+      this->registers[register_x] = this->delay_timer;
+      break;
+    case 0x15:
+      this->delay_timer = this->registers[register_x];
+      break;
+    case 0x18:
+      this->sound_timer = this->registers[register_x];
+      break;
+
+    // Add to index
+    case 0x1E:
+      sum = this->index_register + this->registers[register_x];
+      if (sum < this->index_register || sum < this->registers[register_x]) {
+        this->registers[Processor::FLAG_REGISTER] = 1;
+      }
+
+      this->index_register = sum;
+      break;
+
+    // Get key
+    case 0x0A:
+      key = this->keypad.getKey();
+      if (key == -1) {
+        this->program_counter -= 2;
+        break;
+      }
+
+      this->registers[register_x] = key;
+      break;
+
+    // Font instruction
+    case 0x29:
+      this->index_register = Processor::FONT_SET_START_ADDRESS + (5 * value);
+      break;
+
+    // Binary-coded decimal conversion
+    case 0x33:
+      for (int i = 2; i >= 0; i--) {
+        this->memory[this->index_register + i] = value % 10;
+        value /= 10;
+      }
+      break;
+
+    // Store memory
+    case 0x55:
+      for (int i = 0; i <= register_x; i++) {
+        this->memory[this->index_register + i] = this->registers[i];
+      }
+      break;
+
+    // Load memory
+    case 0x65:
+      for (int i = 0; i <= register_x; i++) {
+        this->registers[i] = this->memory[this->index_register + i];
+      }
+      break;
+
+    default:
+      throw std::logic_error(std::format(
+          "Instruction F should not have last byte {}", instruction_type));
   }
 }
 
