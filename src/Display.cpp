@@ -60,9 +60,7 @@ void Display::initDisplay(unsigned int scale_factor) {
   this->size = VIDEO_WIDTH * VIDEO_HEIGHT;
 }
 
-void Display::clear() {
-  memset(this->surface->pixels, BLACK, VIDEO_WIDTH * VIDEO_HEIGHT);
-}
+void Display::clear() { SDL_FillRect(this->surface.get(), nullptr, BLACK); }
 
 size_t Display::getSize() { return this->size; }
 
