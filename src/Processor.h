@@ -24,6 +24,7 @@ class Processor {
             const Keypad& keypad);
 
   void process();
+  bool shouldUpdateDisplay();
 
  private:
   static const std::size_t FONT_SET_SIZE;
@@ -42,6 +43,7 @@ class Processor {
   const Keypad& keypad;
   std::default_random_engine random_engine;
   std::uniform_int_distribution<short> uniform_int_distribution;
+  bool should_update_display;
 
   Instruction getInstruction();
 

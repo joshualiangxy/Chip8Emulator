@@ -46,7 +46,8 @@ Processor::Processor(const std::string& rom_path, Display& display,
       display{display},
       keypad{keypad},
       random_engine{
-          std::chrono::system_clock::now().time_since_epoch().count()} {
+          std::chrono::system_clock::now().time_since_epoch().count()},
+      should_update_display{false} {
   this->initializeInstructionProcessors();
   this->uniform_int_distribution =
       std::uniform_int_distribution<short>{0, 255u};
@@ -105,6 +106,7 @@ void Processor::initializeInstructionProcessors() {
 void Processor::process() {
   Instruction instruction = this->getInstruction();
   uint16_t first_nibble = instruction >> 12;
+  this->should_update_display = false;
 
   (this->*instruction_table[first_nibble])(instruction);
 
@@ -134,6 +136,7 @@ void Processor::processInstruction0(const Instruction& instruction) {
   switch (fourth_nibble) {
     case 0x0:
       this->display.clear();
+      this->should_update_display = true;
       break;
 
     case 0xE:
@@ -268,11 +271,11 @@ void Processor::draw(const Instruction& instruction) {
 
   this->registers[Processor::FLAG_REGISTER] = 0;
 
-  for (uint8_t row = 0; row < height; row++) {
+  for (uint16_t row = 0; row < height; row++) {
     MemoryValue sprite_byte = this->memory[this->index_register + row];
 
-    for (uint8_t col = 0; col < BYTE_SIZE; col++) {
-      MemoryValue sprite_pixel = sprite_byte & (0x1 << (BYTE_SIZE - 1 - col));
+    for (uint16_t col = 0; col < BYTE_SIZE; col++) {
+      MemoryValue sprite_pixel = sprite_byte & (0x80 >> col);
 
       if (!sprite_pixel) {
         continue;
@@ -287,6 +290,8 @@ void Processor::draw(const Instruction& instruction) {
         this->registers[Processor::FLAG_REGISTER] = 1;
     }
   }
+
+  this->should_update_display = true;
 }
 
 void Processor::skipIfKey(const Instruction& instruction) {
@@ -466,3 +471,5 @@ void Processor::shiftLeft(const uint16_t register_x,
   this->registers[Processor::FLAG_REGISTER] = this->registers[register_x] >> 7;
   this->registers[register_x] = this->registers[register_x] << 1;
 }
+
+bool Processor::shouldUpdateDisplay() { return this->should_update_display; }

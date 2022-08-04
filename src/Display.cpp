@@ -27,7 +27,7 @@ void Display::initDisplay(unsigned int scale_factor) {
   unsigned int scaled_height = VIDEO_HEIGHT * scale_factor;
 
   SDL_Window* raw_window =
-      SDL_CreateWindow("Chip8 Emulator", 50, 50, scaled_width, scaled_height,
+      SDL_CreateWindow("Chip8 Emulator", 100, 100, scaled_width, scaled_height,
                        SDL_WindowFlags::SDL_WINDOW_SHOWN);
   this->window.reset(raw_window, &SDL_DestroyWindow);
 
@@ -61,7 +61,7 @@ void Display::initDisplay(unsigned int scale_factor) {
 }
 
 void Display::clear() {
-  memset(this->surface->pixels, 0, VIDEO_WIDTH * VIDEO_HEIGHT);
+  memset(this->surface->pixels, BLACK, VIDEO_WIDTH * VIDEO_HEIGHT);
 }
 
 size_t Display::getSize() { return this->size; }

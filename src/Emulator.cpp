@@ -8,17 +8,20 @@ static const uint16_t MILLISEC_IN_SEC = 1000;
 Emulator::Emulator(const std::string& rom_path)
     : frames_per_second{60},
       keypad{},
-      display{10},
+      display{15},
       processor{rom_path, this->display, this->keypad} {}
 
 void Emulator::start() {
   const uint32_t millisec_for_frame = MILLISEC_IN_SEC / this->frames_per_second;
-  uint32_t count = 0;
 
   bool is_done = false;
   while (!is_done) {
     is_done = this->keypad.processEvents();
     this->processor.process();
+
+    if (!this->processor.shouldUpdateDisplay()) {
+      continue;
+    }
 
     int start_time = SDL_GetTicks();
 
